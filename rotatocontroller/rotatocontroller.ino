@@ -1,10 +1,3 @@
-
-#if defined(ARDUINO) && ARDUINO >= 100
-#include "Arduino.h"
-#else
-#include "WProgram.h"
-#endif
-
 #include <LiquidCrystal.h>
 
 const long _azAdZeroOffset   =   325;   // adjust to zero out lcd az reading when control box az = 0
@@ -398,60 +391,60 @@ void displayAzEl(long az, long el)
 void displayEl(long el)
 {
   // clear elevation line  lcdSerial
-  //lcd.write(_line1);
+  //lcd.print(_line1);
   lcd.setCursor(0, 1);
   lcd.print("                ");
   //  adjust value for display
   double elFloat = el;
   elFloat = elFloat / 100.0;
-  //lcd.write(_line1);
+  //lcd.print(_line1);
   lcd.setCursor(0, 1);
   lcd.print("EL ");
 
   if (elFloat < 10.0)
   {
     //lcd.print(" ");
-    lcd.write("                ");
+    lcd.print("                ");
   }
   if (elFloat < 100.0)
   {
     //lcd.print(" ");
-    lcd.write("                ");
+    lcd.print("                ");
 
   }
   //lcd.print(elFloat, 1);
   //lcd.print(elRotorMovement);
-  lcd.write(elFloat);
-  lcd.write(elRotorMovement);
+  lcd.print(elFloat);
+  lcd.print(elRotorMovement);
 
 }
 
 
 void displayAz(long az)
 {
-  //lcd.write(_line0);
+  //lcd.print(_line0);
   lcd.clear();
   lcd.setCursor(0, 0);
   //lcd.print("                ");
-  lcd.write("                ");
+  lcd.print("                ");
   double azFloat = az;
   azFloat = azFloat / 100.0;
-  //lcd.write(_line0);
+  //lcd.print(_line0);
   lcd.setCursor(0, 0);
   //lcd.print("AZ ");
-  lcd.write(" AZ");
+  lcd.print(" AZ");
   if (azFloat < 10.0)
   {
     //lcd.print(" ");
-    lcd.write("                ");
+    lcd.print("                ");
   }
   if (azFloat < 100.0)
   {
     //lcd.print(" ");
-    lcd.write("                ");
+    lcd.print("                ");
   }
   //lcd.print(azFloat, 1);
-  lcd.write(azFloat);
+  lcd.print(azFloat);
   //lcd.print(azRotorMovement);
-  lcd.write(azRotorMovement);
+  lcd.print(azRotorMovement);
 }
