@@ -17,7 +17,7 @@
 #define CLOSEENOUGH 2
 
 //Define interval for checking rotator coordinate and refresh LCD Screen
-#define REFRESH_LCD_INTERVAL 1000 //every 500ms refresh the screen
+#define REFRESH_LCD_INTERVAL 500 //every 500ms refresh the screen
 #define READING_ROTOR_INTERVAL 1000 //every 100ms read the AZ/EL from rotor
 
 //Variable to store current coordinate of G5500
@@ -34,8 +34,8 @@ unsigned long rtcLastRotorUpdate = 0UL;
 bool satelliteOnSky = false;
 bool allowAzimuthMove = false;
 bool allowElevationMove = false;
-char azimuthMovement;
-char elevationMovement;
+char azimuthMovement = 'N';
+char elevationMovement = 'N';
 long targetAzimuth = 0L;
 long targetElevation = 0L;
 char buff;
@@ -76,7 +76,7 @@ void setup()
 
 void loop()
 {
-  if (Serial1.available() > 0) parseSATPC32Command();
+  if (Serial1.available() > 0) parseSATPC32Command(Serial1.read());
 
   //Every N ms, we check for rotator direction, to see if rotation is needed
   unsigned long rtcCurrent = millis();
@@ -114,7 +114,6 @@ int readAzimuth() {
   azimuthVoltage = constrain(azimuthVoltage, 410, 922);
   //map voltage 2 to 4.5v to angle 0 to 450 degree
   azimuthVoltage = map(azimuthVoltage, 410, 922, 0, 450);
-  Serial.println(azimuthVoltage);
   return azimuthVoltage;
 }
 
@@ -126,60 +125,53 @@ int readElevation() {
   elevationVoltage = constrain(elevationVoltage, 410, 922);
   //map voltage 2 to 4.5v to angle 0 to 450 degree
   elevationVoltage = map(elevationVoltage, 410, 922, 0, 450);
-  Serial.println(elevationVoltage);
   return elevationVoltage;
 }
 
-void parseSATPC32Command() {
+void parseSATPC32Command(char buff) {
   //Parse command from SATPC32, save targeted Az/El
-  if (Serial1.available() > 0)
-  {
-    buff = Serial1.read();
-    //Serial.println(buff);
-    switch (buff)
+  switch (buff)
     {
-      case 'w':
-      case 'W':
+    case 'w':
+    case 'W':
+      {
+        satelliteOnSky = true;
+        counter = 0;
+        break;
+      }
+    // numeric - azimuth and elevation digits
+    case '0':  case '1':   case '2':  case '3':  case '4':
+    case '5':  case '6':   case '7':  case '8':  case '9':
+      {
+        if (satelliteOnSky) azElBuffer[counter++] = buff;;
+        //Process array when buffer is full
+        //i.e wxxxyyy
+        //     012345
+        if (counter == 6)
         {
-          satelliteOnSky = true;
-          counter = 0;
-          break;
-        }
-      // numeric - azimuth and elevation digits
-      case '0':  case '1':   case '2':  case '3':  case '4':
-      case '5':  case '6':   case '7':  case '8':  case '9':
-        {
-          if (satelliteOnSky) azElBuffer[counter++] = buff;;
-
-          //Process array when buffer is full
-          //i.e wxxxyyy
-          //     012345
-          if (counter == 6)
+          //Extract AZ/EL value from buffer array
+          targetAzimuth = (azElBuffer[0] - 48) * 100 + (azElBuffer[1] - 48) * 10 + (azElBuffer[2] - 48) * 1;
+          targetElevation = (azElBuffer[3] - 48) * 100 + (azElBuffer[4] - 48) * 10 + (azElBuffer[5] - 48) * 1;
+          //Discard if azimuth/elevation exceeded range
+          if (targetAzimuth > MAX_AZIMUTH || targetElevation > MAX_ELEVATION) {
+            satelliteOnSky = false;
+            allowAzimuthMove = false;
+            targetAzimuth = 0;
+            targetElevation = 0;
+          } else
           {
-            //Extract AZ/EL value from buffer array
-            targetAzimuth = (azElBuffer[0] - 48) * 100 + (azElBuffer[1] - 48) * 10 + (azElBuffer[2] - 48) * 1;
-            targetElevation = (azElBuffer[3] - 48) * 100 + (azElBuffer[4] - 48) * 10 + (azElBuffer[5] - 48) * 1;
-
-            //Discard if azimuth/elevation exceeded range
-            if (targetAzimuth > MAX_AZIMUTH || targetElevation > MAX_ELEVATION) {
-              satelliteOnSky = false;
-              allowAzimuthMove = false;
-              targetAzimuth = 0;
-              targetElevation = 0;
-            } else
-            {
-              allowAzimuthMove = true;
-              allowElevationMove = true;
-            }
-            counter = 0;
+            allowAzimuthMove = true;
+            allowElevationMove = true;
           }
-          break;
+          counter = 0;
         }
-      default:
-        {
-          //ignore everything, e.g. C2 or "\r" or " "
-        }
-    }
+        break;
+      }
+    default:
+      {
+        //ignore everything, e.g. C2 or "\r" or " "
+        satelliteOnSky = false;
+      }
   }
 }
 
@@ -195,20 +187,18 @@ void rotateAzimuth() {
       digitalWrite(RHG5500, HIGH);
       digitalWrite(LFG5500, LOW);
       azimuthMovement = 'L';
-      Serial.println(azimuthMovement);
     } else // turn right
     {
       digitalWrite(RHG5500, LOW);
       digitalWrite(LFG5500, HIGH);
       azimuthMovement = 'R';
-      Serial.println(azimuthMovement);
     }
   } else
   {
     allowAzimuthMove = false;
+    elevationMovement = "N";
     digitalWrite(LFG5500, HIGH);
     digitalWrite(RHG5500, HIGH);
-    Serial.println(azimuthMovement);
   }
 }
 
@@ -223,17 +213,16 @@ void rotateElevation() {
       digitalWrite(UPG5500, HIGH);
       digitalWrite(DWG5500, LOW);
       elevationMovement = 'D';
-      Serial.println(elevationMovement);
     } else // turn up
     {
       digitalWrite(UPG5500, LOW);
       digitalWrite(DWG5500, HIGH);
       elevationMovement = 'U';
-      Serial.println(elevationMovement);
     }
   } else
   {
     allowElevationMove = false;
+    elevationMovement = "N";
     digitalWrite(UPG5500, HIGH);
     digitalWrite(DWG5500, HIGH);
   }
@@ -248,7 +237,12 @@ void displayAzEl(long rotorAzimuth, long rotorElevation) {
     previousRotorAzimuth = rotorAzimuth;
     //lcd.setCursor(0, 0);
     //lcd.print("A" + String(rotorAzimuth) + " " + azimuthMovement + " T-A" + String(targetAzimuth));
-    //Serial.println("A" + String(rotorAzimuth) + " " + azimuthMovement + " T-A" + String(targetAzimuth));
+    Serial.print("Rotor Azimuth: ");
+    Serial.print(rotorAzimuth);
+    Serial.print(" Target Azimuth: ");
+    Serial.print(targetAzimuth);
+    Serial.print(" Azimuth Movement: ");
+    Serial.println(azimuthMovement);
   }
 
   // display elevation - filter A/D noise
@@ -257,6 +251,12 @@ void displayAzEl(long rotorAzimuth, long rotorElevation) {
     previousRotorElevation = rotorElevation;
     //lcd.setCursor(0, 1);
     //lcd.print("E" + String(rotorElevation) + " " + elevationMovement + " T-E" + String(targetElevation));
-    //Serial.println("E" + String(rotorElevation) + " " + elevationMovement + " T-E" + String(targetElevation));
+    Serial.print("Rotor Elevation: ");
+    Serial.print(rotorElevation);
+    Serial.print(" Target Elevation: ");
+    Serial.print(targetElevation);
+    Serial.print(" Elevation Movement: ");
+    Serial.println(elevationMovement);
+    Serial.println(" ");
   }
 }
