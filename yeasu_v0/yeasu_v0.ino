@@ -106,28 +106,6 @@ void loop()
   }
 }
 
-int readAzimuth() {
-  //Read voltage store into buffer
-  int azimuthVoltage;
-  azimuthVoltage = analogRead(AZG5500);
-  //voltage provided varies from 2 to 4.5 <==> 410 to 922
-  azimuthVoltage = constrain(azimuthVoltage, 410, 922);
-  //map voltage 2 to 4.5v to angle 0 to 450 degree
-  azimuthVoltage = map(azimuthVoltage, 410, 922, 0, 450);
-  return azimuthVoltage;
-}
-
-int readElevation() {
-  //Read voltage store into buffer
-  int elevationVoltage;
-  elevationVoltage = analogRead(ELG5500);
-  //voltage provided varies from 2 to 4.5 <==> 410 to 922
-  elevationVoltage = constrain(elevationVoltage, 410, 922);
-  //map voltage 2 to 4.5v to angle 0 to 450 degree
-  elevationVoltage = map(elevationVoltage, 410, 922, 0, 450);
-  return elevationVoltage;
-}
-
 void parseSATPC32Command(char buff) {
   //Parse command from SATPC32, save targeted Az/El
   switch (buff)
@@ -199,64 +177,5 @@ void rotateAzimuth() {
     elevationMovement = "N";
     digitalWrite(LFG5500, HIGH);
     digitalWrite(RHG5500, HIGH);
-  }
-}
-
-void rotateElevation() {
-  //Read Elevation from G5500
-  rotorElevation = readElevation();
-  //test for elevation
-  if ( abs(targetElevation - rotorElevation) > CLOSEENOUGH && allowElevationMove)
-  {
-    //Check if turn up or down
-    if (targetElevation - rotorElevation < 0) { // turn down
-      digitalWrite(UPG5500, HIGH);
-      digitalWrite(DWG5500, LOW);
-      elevationMovement = 'D';
-    } else // turn up
-    {
-      digitalWrite(UPG5500, LOW);
-      digitalWrite(DWG5500, HIGH);
-      elevationMovement = 'U';
-    }
-  } else
-  {
-    allowElevationMove = false;
-    elevationMovement = "N";
-    digitalWrite(UPG5500, HIGH);
-    digitalWrite(DWG5500, HIGH);
-  }
-  //end of update rotor movement
-}
-
-void displayAzEl(long rotorAzimuth, long rotorElevation) {
-  // display azimuth - filter A/D noise
-  // if reading from rotator is too close, then no need to update
-  if (abs(rotorAzimuth - previousRotorAzimuth) > CLOSEENOUGH)
-  {
-    previousRotorAzimuth = rotorAzimuth;
-    //lcd.setCursor(0, 0);
-    //lcd.print("A" + String(rotorAzimuth) + " " + azimuthMovement + " T-A" + String(targetAzimuth));
-    Serial.print("Rotor Azimuth: ");
-    Serial.print(rotorAzimuth);
-    Serial.print(" Target Azimuth: ");
-    Serial.print(targetAzimuth);
-    Serial.print(" Azimuth Movement: ");
-    Serial.println(azimuthMovement);
-  }
-
-  // display elevation - filter A/D noise
-  if (abs(rotorElevation - previousRotorElevation) > CLOSEENOUGH)
-  {
-    previousRotorElevation = rotorElevation;
-    //lcd.setCursor(0, 1);
-    //lcd.print("E" + String(rotorElevation) + " " + elevationMovement + " T-E" + String(targetElevation));
-    Serial.print("Rotor Elevation: ");
-    Serial.print(rotorElevation);
-    Serial.print(" Target Elevation: ");
-    Serial.print(targetElevation);
-    Serial.print(" Elevation Movement: ");
-    Serial.println(elevationMovement);
-    Serial.println(" ");
   }
 }
