@@ -6,23 +6,32 @@ This repository keep track the development process of the Yeasu Arduino Controll
 
 The circuit of the Arduino Controller goes like this:
 
-|-------|PIN 1 --> Provide analogue voltage from 2 to 4.5VDC corresponding to 0 to 180 Elevation degree\
-|Yeasu  |PIN 2 --> Short this pin to ground to move zimuth clockwis\
-|Rotator|PIN 3 <-- Short this pin to ground to move up\
-|Contro-|PIN 4 <-- Short this pin to gorund to move azimuth counterclockwise\
-|ller   |PIN 5 <-- Short this pin to ground to move down\
-|       |PIN 6 --> Provide analogue voltage from 2 to 4.5VDC corresponding to 0 to 450 Azimuth degree\
-|       |PIN 7 --- Provide 13VDC to 6VDC @ 200mA\
-|       |PIN 8 --- Commond Ground with arduino\
+Yeasu Rotator External Control Port (Din8):
+PIN 1 --> Provide analogue voltage from 2 to 4.5VDC corresponding to 0 to 180 Elevation degree\
+PIN 2 --> Short this pin to ground to move zimuth clockwis\
+PIN 3 <-- Short this pin to ground to move up\
+PIN 4 <-- Short this pin to gorund to move azimuth counterclockwise\
+PIN 5 <-- Short this pin to ground to move down\
+PIN 6 --> Provide analogue voltage from 2 to 4.5VDC corresponding to 0 to 450 Azimuth degree\
+PIN 7 --- Provide 13VDC to 6VDC @ 200mA\
+PIN 8 --- Commond Ground with arduino\
 
 --------------------------------------------------------------------------------------------------------
 
-|-------|A0 <-- Read azimuth degree
-|       |A1 <-- Read elevation degree
-|Arduino|D4 --> Write to Yeasu Controller (Left)
-|Mega   |D5 --> Write to Yeasu Controller (Right)
-|       |D6 --> Write to Yeasu Controller (Up)
-|-------|D7 --> Write to Yeasu Controller (Down)
+Arduino
+A0 <-- Read azimuth degree\
+A1 <-- Read elevation degree\
+D4 --> Write to Yeasu Controller (Left)\
+D5 --> Write to Yeasu Controller (Right)\
+D6 --> Write to Yeasu Controller (Up)\
+D7 --> Write to Yeasu Controller (Down)\
+Ground --- Common ground with Arduino\
+USB Serial Port <-- Receiving Satellite information from laptop
+
+--------------------------------------------------------------------------------------------------------
+
+Laptop
+Connect USB port and satellite prediction software, such as SATPC32, and start sending satellite position to Arduino.
 
 You might need a circuit to invert the logic in the code, because physically you need to write low in order
 for the controller to rotate, but our code write "HIGH" (5V). 
