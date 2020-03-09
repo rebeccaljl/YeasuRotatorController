@@ -1,31 +1,31 @@
-void displayAzEl(long rotorAzimuth, long rotorElevation) {
-  // display azimuth - filter A/D noise
-  // if reading from rotator is too close, then no need to update
-  if (abs(rotorAzimuth - previousRotorAzimuth) > CLOSEENOUGH)
+/*Display Azimuth & Elevation*/
+void displayAzEl(long az, long el)
+{
+  if (abs(rotorAzimuth - previousRotorAzimuth) > closeEnough)
   {
     previousRotorAzimuth = rotorAzimuth;
-    //lcd.setCursor(0, 0);
-    //lcd.print("A" + String(rotorAzimuth) + " " + azimuthMovement + " T-A" + String(targetAzimuth));
-    Serial.print("Rotor Azimuth: ");
-    Serial.print(rotorAzimuth);
-    Serial.print(" Target Azimuth: ");
-    Serial.print(targetAzimuth);
-    Serial.print(" Azimuth Movement: ");
-    Serial.println(azimuthMovement);
+    displayAz(az);
   }
-
-  // display elevation - filter A/D noise
-  if (abs(rotorElevation - previousRotorElevation) > CLOSEENOUGH)
+  
+  if (abs(rotorElevation - previousRotorElevation) > closeEnough)
   {
     previousRotorElevation = rotorElevation;
-    //lcd.setCursor(0, 1);
-    //lcd.print("E" + String(rotorElevation) + " " + elevationMovement + " T-E" + String(targetElevation));
-    Serial.print("Rotor Elevation: ");
-    Serial.print(rotorElevation);
-    Serial.print(" Target Elevation: ");
-    Serial.print(targetElevation);
-    Serial.print(" Elevation Movement: ");
-    Serial.println(elevationMovement);
-    Serial.println(" ");
+    displayEl(el);
   }
+}
+
+void displayAz(int az)
+{
+  lcd.setCursor(0, 0);
+  lcd.print("AZ "); lcd.print(az);
+  lcd.print(azMovement);
+}
+
+
+
+void displayEl(int el)
+{
+  lcd.setCursor(0, 1);
+  lcd.print("EL "); lcd.print(el);
+  lcd.print(elMovement);
 }

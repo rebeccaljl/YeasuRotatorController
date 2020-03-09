@@ -1,26 +1,18 @@
-void rotateElevation() {
-  //Read Elevation from G5500
-  rotorElevation = readElevation();
-  //test for elevation
-  if ( abs(targetElevation - rotorElevation) > CLOSEENOUGH && allowElevationMove)
+void rotateElevation()
+{
+  long rotorMoveEl = newEL - rotorElevation;
+  if (rotorMoveEl > 0)
   {
-    //Check if turn up or down
-    if (targetElevation - rotorElevation < 0) { // turn down
-      digitalWrite(UPG5500, HIGH);
-      digitalWrite(DWG5500, LOW);
-      elevationMovement = 'D';
-    } else // turn up
-    {
-      digitalWrite(UPG5500, LOW);
-      digitalWrite(DWG5500, HIGH);
-      elevationMovement = 'U';
-    }
-  } else
-  {
-    allowElevationMove = false;
-    elevationMovement = "N";
-    digitalWrite(UPG5500, HIGH);
-    digitalWrite(DWG5500, HIGH);
+    digitalWrite(G5500DN, LOW);
+    digitalWrite(G5500UP, HIGH);
+    elMovement = "  U ";
+    elMovement = elMovement + String(newEL);
   }
-  //end of update rotor movement
+  else
+  {
+    digitalWrite(G5500UP, LOW);
+    digitalWrite(G5500DN, HIGH);
+    elMovement = "  D ";
+    elMovement = elMovement + String(newEL);
+  }
 }
