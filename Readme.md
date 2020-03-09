@@ -6,14 +6,14 @@ This repository keep track the development process of the Yeasu Arduino Controll
 
 The circuit of the Arduino Controller goes like this:
 
-|-------|PIN 1 --> Provide analogue voltage from 2 to 4.5VDC corresponding to 0 to 180 Elevation degree
-|Yeasu  |PIN 2 --> Short this pin to ground to move zimuth clockwis
-|Rotator|PIN 3 <-- Short this pin to ground to move up
-|Contro-|PIN 4 <-- Short this pin to gorund to move azimuth counterclockwise
-|ller   |PIN 5 <-- Short this pin to ground to move down
-|       |PIN 6 --> Provide analogue voltage from 2 to 4.5VDC corresponding to 0 to 450 Azimuth degree
-|       |PIN 7 --- Provide 13VDC to 6VDC @ 200mA
-|       |PIN 8 --- Commond Ground with arduino
+|-------|PIN 1 --> Provide analogue voltage from 2 to 4.5VDC corresponding to 0 to 180 Elevation degree\
+|Yeasu  |PIN 2 --> Short this pin to ground to move zimuth clockwis\
+|Rotator|PIN 3 <-- Short this pin to ground to move up\
+|Contro-|PIN 4 <-- Short this pin to gorund to move azimuth counterclockwise\
+|ller   |PIN 5 <-- Short this pin to ground to move down\
+|       |PIN 6 --> Provide analogue voltage from 2 to 4.5VDC corresponding to 0 to 450 Azimuth degree\
+|       |PIN 7 --- Provide 13VDC to 6VDC @ 200mA\
+|       |PIN 8 --- Commond Ground with arduino\
 
 --------------------------------------------------------------------------------------------------------
 
